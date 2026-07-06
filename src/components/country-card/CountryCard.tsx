@@ -8,7 +8,7 @@ export default function CountryCard({
   flagUrl: string;
 }) {
   return (
-    <div className="flex flex-col justify-center gap-1 p-2 max-w-[200px]">
+    <div className="flex flex-col justify-center gap-1 p-2 max-w-50">
       {flagUrl ? (
         <img
           src={flagUrl}
