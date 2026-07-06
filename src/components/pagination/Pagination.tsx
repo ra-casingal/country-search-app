@@ -58,19 +58,6 @@ export default function Pagination({
           Previous
         </button>
       )}
-      {currentPage > 1 && (
-        <button
-          className={
-            loading
-              ? inputBoxStyle + " opacity-50 cursor-not-allowed"
-              : inputBoxStyle
-          }
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={loading}
-        >
-          Previous
-        </button>
-      )}
       {pageNumbers.map((pageNumber) => (
         <button
           key={pageNumber}

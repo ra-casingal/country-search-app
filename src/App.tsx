@@ -6,48 +6,6 @@ import Pagination from "./components/pagination/Pagination";
 import type { IGetCountriesResponse } from "./types/countries";
 import { useSearchParams } from "react-router";
 
-const BouncingCirclesSvgIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 200 200"
-    className="w-6 h-6"
-  >
-    <circle cx="40" cy="65" r="15" stroke="#000" strokeWidth="15">
-      <animate
-        attributeName="cy"
-        begin="-0.2"
-        calcMode="spline"
-        dur="1"
-        keySplines=".5 0 .5 1;.5 0 .5 1"
-        repeatCount="indefinite"
-        values="65;135;65;"
-      ></animate>
-    </circle>
-    <circle cx="100" cy="65" r="15" stroke="#000" strokeWidth="15">
-      <animate
-        attributeName="cy"
-        begin="-0.1"
-        calcMode="spline"
-        dur="1"
-        keySplines=".5 0 .5 1;.5 0 .5 1"
-        repeatCount="indefinite"
-        values="65;135;65;"
-      ></animate>
-    </circle>
-    <circle cx="160" cy="65" r="15" stroke="#000" strokeWidth="15">
-      <animate
-        attributeName="cy"
-        begin="0"
-        calcMode="spline"
-        dur="1"
-        keySplines=".5 0 .5 1;.5 0 .5 1"
-        repeatCount="indefinite"
-        values="65;135;65;"
-      ></animate>
-    </circle>
-  </svg>
-);
-
 function App() {
   if (!import.meta.env.VITE_REST_COUNTRIES_API_KEY) {
     console.error(
@@ -59,8 +17,8 @@ function App() {
     IGetCountriesResponse["data"]["objects"]
   >([]);
   const [searchMetaData, setSearchMetaData] = useState<
-    IGetCountriesResponse["data"]["meta"]
-  >([]);
+    IGetCountriesResponse["data"]["meta"] | null
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(searchParams.get("page") || "1");
@@ -69,39 +27,25 @@ function App() {
 
   const sectionStyle = "flex flex-col items-center justify-center w-full";
 
-  const handleSearch = async () => {
-    try {
-      setIsLoading(true);
-      setSearchedQuery(query); // Update the searchedQuery state with the current query
-      setSearchParams(new URLSearchParams({ name: query, page: "1" })); // Update the search params in the URL
-      const response = await fetch(
-        `https://api.restcountries.com/countries/v5?q=${query}&response_fields=currencies,names.common,names.official,flag.url_svg,cars.driving_side&limit=10`,
-        {
-          headers: {
-            Authorization:
-              "Bearer " + import.meta.env.VITE_REST_COUNTRIES_API_KEY, // Use the API key from the environment variable
-          },
-        },
-      );
-      const data: IGetCountriesResponse = await response.json();
-      setSearchData(data.data.objects || []); // Update the searchData state with the fetched data
-      setSearchMetaData(data.data.meta || []); // Update the searchMetaData state with the fetched metadata
-      setPage("1"); // Reset to the first page
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-    } finally {
-      setIsLoading(false); // Ensure loading state is reset even if there's an error
-    }
+  const handleSearch = () => {
+    setSearchedQuery(query); // Update the searchedQuery state with the current query
+    setSearchParams(new URLSearchParams({ name: query, page: "1" })); // Update the search params in the URL
+    setPage("1"); // Reset to the first page
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      if (query !== "") {
+      if (searchedQuery !== "") {
         try {
           setIsLoading(true);
-          console.log("Fetching data for query:", query, "and page:", page);
+          console.log(
+            "Fetching data for query:",
+            searchedQuery,
+            "and page:",
+            page,
+          );
           const response = await fetch(
-            `https://api.restcountries.com/countries/v5?q=${query}&response_fields=currencies,names.common,names.official,flag.url_svg,cars.driving_side&limit=10&offset=${(parseInt(page) - 1) * 10}`,
+            `https://api.restcountries.com/countries/v5?q=${searchedQuery}&response_fields=currencies,names.common,names.official,flag.url_svg,cars.driving_side&limit=10&offset=${(parseInt(page) - 1) * 10}`,
             {
               headers: {
                 Authorization:
@@ -113,11 +57,13 @@ function App() {
           // If the user navigates to a page that doesn't exist (e.g., page 5 when there are only 3 pages), reset to the first page
           if (data.data.objects.length === 0 && parseInt(page) > 1) {
             setPage("1");
-            setSearchParams(new URLSearchParams({ name: query, page: "1" }));
+            setSearchParams(
+              new URLSearchParams({ name: searchedQuery, page: "1" }),
+            );
             return;
           }
           setSearchData(data.data.objects || []);
-          setSearchMetaData(data.data.meta || []);
+          setSearchMetaData(data.data.meta || null);
         } catch (error) {
           console.error("Error fetching countries:", error);
         } finally {
@@ -127,7 +73,7 @@ function App() {
     };
 
     fetchData();
-  }, [page]);
+  }, [page, searchedQuery, setSearchParams]);
 
   return (
     <div className={sectionStyle + " p-20"}>
@@ -140,7 +86,6 @@ function App() {
           setQuery={setQuery}
           query={query}
           isLoading={isLoading}
-          bouncingCirclesSvgIcon={BouncingCirclesSvgIcon}
         />
       </section>
       <section className={sectionStyle + " gap-2"}>
@@ -148,7 +93,7 @@ function App() {
           <div className="flex flex-row items-center justify-center gap-5">
             <p className="text-xl">
               Showing Page {page} of{" "}
-              {Math.ceil(searchMetaData?.total / 10) || 1}
+              {Math.ceil((searchMetaData?.total ?? 0) / 10) || 1}
             </p>
             <p className="text-xl">
               Total Countries: {searchMetaData?.total || 0}
