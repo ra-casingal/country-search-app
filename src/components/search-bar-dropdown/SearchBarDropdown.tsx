@@ -71,7 +71,9 @@ export default function SearchBarDropdown({
         );
         const data: IGetCountriesResponse = await response.json();
         setResults((prev) =>
-          append ? [...prev, ...(data.data.objects || [])] : data.data.objects || [],
+          append
+            ? [...prev, ...(data.data.objects || [])]
+            : data.data.objects || [],
         );
         setMeta(data.data.meta || null);
       } catch (err) {
@@ -189,7 +191,8 @@ export default function SearchBarDropdown({
     onSelect(country);
   };
 
-  const isPending = query.length >= MIN_QUERY_LENGTH && query !== committedQuery;
+  const isPending =
+    query.length >= MIN_QUERY_LENGTH && query !== committedQuery;
   const showSkeleton = isPending || isLoading;
   const showError = !showSkeleton && !!error;
   const showNoResults =
@@ -199,10 +202,10 @@ export default function SearchBarDropdown({
   return (
     <div
       ref={containerRef}
-      className="bg-white w-full max-w-[257px] h-[64px] m-auto rounded-full p-2 grid items-center justify-center relative"
+      className="bg-white w-full max-w-64.25 h-16 rounded-full p-2 grid items-center justify-center relative"
     >
       <div
-        className={`p-1 max-w-xs flex flex-row gap-1 justify-between border-black border-2 ${activeMenu ? "rounded-t-3xl " : "rounded-3xl"}`}
+        className={`p-1 w-full max-w-xs flex flex-row gap-1 justify-between border-black border-2 ${activeMenu ? "rounded-t-3xl " : "rounded-3xl"}`}
       >
         <input
           type="search"
@@ -217,7 +220,7 @@ export default function SearchBarDropdown({
               commitSearch(query);
             }
           }}
-          className={inputBoxStyle + " outline-none"}
+          className={inputBoxStyle + " outline-none flex-1 min-w-0"}
         />
         <button
           type="button"
@@ -231,7 +234,7 @@ export default function SearchBarDropdown({
       {activeMenu && (
         <div
           onScroll={handleScroll}
-          className="absolute w-full bg-white top-full left-0 min-h-25 rounded-br-2xl rounded-bl-2xl border-black border-2 flex flex-col gap-1 max-h-40 overflow-y-auto"
+          className="w-full bg-white left-0 min-h-40 rounded-br-2xl rounded-bl-2xl border-black border-2 flex flex-col gap-1 max-h-40 overflow-y-auto"
         >
           {showError && <p className="p-3 text-sm text-red-600">{error}</p>}
           {showNoResults && (

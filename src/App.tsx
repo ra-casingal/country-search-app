@@ -15,16 +15,18 @@ function App() {
 
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
 
-  const sectionStyle = "flex flex-col items-center justify-center w-full";
+  const sectionStyle = "flex flex-col items-center justify-center w-full gap-5";
 
   return (
-    <div className={sectionStyle + " p-20"}>
-      <section className={sectionStyle}>
+    <div className={sectionStyle + " sm:p-10"}>
+      <section className={sectionStyle + " p-5"}>
         <img src={globeImg} alt="World Globe" className="max-w-xl" />
-        <h1 className="text-2xl font-bold">Look up the World's Countries</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">
+          Look up the World's Countries
+        </h1>
         <SearchBarDropdown onSelect={setSelectedCountry} />
       </section>
-      <section className={sectionStyle + " gap-2 p-5"}>
+      <section className={sectionStyle}>
         {selectedCountry && (
           <CountryDetailCard
             officialName={selectedCountry.names.official}

@@ -22,13 +22,13 @@ export default function CountryDetailCard({
             console.error(`Failed to load flag image for ${officialName}`);
             e.currentTarget.src = NotAvailableSvg;
           }}
-          className="w-60 h-30 object-cover shadow-lg rounded-md"
+          className="w-60 aspect-[2/1] object-cover shadow-lg rounded-md"
         />
       ) : (
         <img
           src={NotAvailableSvg}
           alt={`Flag not available for ${officialName}`}
-          className="w-60 h-30 object-cover shadow-lg rounded-md"
+          className="w-60 aspect-2/1 object-cover shadow-lg rounded-md"
         />
       )}
       <h2 className="font-bold text-xl">{officialName}</h2>
