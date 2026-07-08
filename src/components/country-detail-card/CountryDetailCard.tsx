@@ -12,6 +12,8 @@ export default function CountryDetailCard({
   currencies: Currency[];
   drivingSide: DrivingSide;
 }) {
+  const flagImgStyle = "w-60 aspect-2/1 object-cover shadow-lg rounded-md";
+
   return (
     <div className="flex flex-col gap-2 p-4 max-w-sm border-black border-2 rounded-md">
       {flagUrl ? (
@@ -22,13 +24,13 @@ export default function CountryDetailCard({
             console.error(`Failed to load flag image for ${officialName}`);
             e.currentTarget.src = NotAvailableSvg;
           }}
-          className="w-60 aspect-[2/1] object-cover shadow-lg rounded-md"
+          className={flagImgStyle}
         />
       ) : (
         <img
           src={NotAvailableSvg}
           alt={`Flag not available for ${officialName}`}
-          className="w-60 aspect-2/1 object-cover shadow-lg rounded-md"
+          className={flagImgStyle}
         />
       )}
       <h2 className="font-bold text-xl">{officialName}</h2>

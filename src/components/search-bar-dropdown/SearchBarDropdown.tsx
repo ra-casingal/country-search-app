@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
 import type { IGetCountriesResponse } from "../../types/countries";
 import MagnifyingGlassSvg from "../../assets/magnifying-glass.svg";
 
@@ -24,8 +23,8 @@ export default function SearchBarDropdown({
 }: {
   onSelect: (country: Country) => void;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialQuery = searchParams.get("name") ?? "";
+  const initialQuery =
+    new URLSearchParams(window.location.search).get("name") ?? "";
   const [query, setQuery] = useState(initialQuery);
   const [committedQuery, setCommittedQuery] = useState<string | null>(() =>
     initialQuery.length >= MIN_QUERY_LENGTH ? initialQuery : null,
@@ -91,6 +90,21 @@ export default function SearchBarDropdown({
     [],
   );
 
+  const updateSearchParam = (searchQuery: string) => {
+    const params = new URLSearchParams(window.location.search);
+    if (searchQuery) {
+      params.set("name", searchQuery);
+    } else {
+      params.delete("name");
+    }
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      query ? `${window.location.pathname}?${query}` : window.location.pathname,
+    );
+  };
+
   const commitSearch = useCallback(
     (searchQuery: string) => {
       if (debounceTimerRef.current) {
@@ -99,10 +113,10 @@ export default function SearchBarDropdown({
       }
       setActiveMenu(true);
       setCommittedQuery(searchQuery);
-      setSearchParams(searchQuery ? { name: searchQuery } : {});
+      updateSearchParam(searchQuery);
       fetchCountries(searchQuery, 0, false);
     },
-    [fetchCountries, setSearchParams],
+    [fetchCountries],
   );
 
   // Auto-load the query already present in the URL (e.g. shared link, refresh) once on mount.
@@ -205,7 +219,7 @@ export default function SearchBarDropdown({
       className="bg-white w-full max-w-64.25 h-16 rounded-full p-2 grid items-center justify-center relative"
     >
       <div
-        className={`p-1 w-full max-w-xs flex flex-row gap-1 justify-between border-black border-2 ${activeMenu ? "rounded-t-3xl " : "rounded-3xl"}`}
+        className={`p-1 w-full flex flex-row gap-1 justify-between border-black border-2 ${activeMenu ? "rounded-t-3xl " : "rounded-3xl"}`}
       >
         <input
           type="search"
@@ -226,7 +240,7 @@ export default function SearchBarDropdown({
           type="button"
           tabIndex={-1}
           aria-hidden="true"
-          className={inputBoxStyle + " w-10 h-10"}
+          className={inputBoxStyle + " w-11 h-11"}
         >
           <img src={MagnifyingGlassSvg} alt="" />
         </button>
@@ -234,7 +248,7 @@ export default function SearchBarDropdown({
       {activeMenu && (
         <div
           onScroll={handleScroll}
-          className="w-full bg-white left-0 min-h-40 rounded-br-2xl rounded-bl-2xl border-black border-2 flex flex-col gap-1 max-h-40 overflow-y-auto"
+          className="absolute w-full bg-white top-full left-0 min-h-25 rounded-br-2xl rounded-bl-2xl border-black border-2 flex flex-col gap-1 max-h-[40vh] overflow-y-auto"
         >
           {showError && <p className="p-3 text-sm text-red-600">{error}</p>}
           {showNoResults && (
