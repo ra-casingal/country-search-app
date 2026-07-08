@@ -1,4 +1,4 @@
-# Simple Country Search App
+# Country Search App
 
 A small React app to search for countries and view their flag, currency, and
 driving side.
